@@ -1,0 +1,10 @@
+{
+  "name": "ACIPL/IPNET IMS",
+  "description": "ACIPL/IPNET Inventory Management System for tracking hardware assets, software licenses, accessories, consumables, and activity history.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
