@@ -69,8 +69,7 @@ export const AssetsList: React.FC<AssetsListProps> = ({
         const matchesModel = asset.model.toLowerCase().includes(q);
         const matchesSerial = asset.serial.toLowerCase().includes(q);
         const matchesUser = asset.assignedToName?.toLowerCase().includes(q) || false;
-        const matchesLocation = asset.location.toLowerCase().includes(q);
-        if (!matchesTag && !matchesName && !matchesModel && !matchesSerial && !matchesUser && !matchesLocation) {
+        if (!matchesTag && !matchesName && !matchesModel && !matchesSerial && !matchesUser) {
           return false;
         }
       }
@@ -221,7 +220,6 @@ export const AssetsList: React.FC<AssetsListProps> = ({
                 <th className="px-4 py-3">Serial</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Assigned To</th>
-                <th className="px-4 py-3">Location</th>
                 <th className="px-4 py-3 text-right">Cost</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -265,9 +263,6 @@ export const AssetsList: React.FC<AssetsListProps> = ({
                       ) : (
                         <span className="text-slate-400 italic">Unassigned</span>
                       )}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-slate-600">
-                      {asset.location}
                     </td>
                     <td className="px-4 py-3 text-right font-mono text-slate-800 whitespace-nowrap font-medium">
                       ${asset.purchaseCost ? asset.purchaseCost.toLocaleString() : '0.00'}

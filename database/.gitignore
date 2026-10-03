@@ -1,5 +1,0 @@
-*.sqlite
-*.journal
-*.sqlite-journal
-# Per-worker databases created by `artisan test --parallel`:
-*.sqlite_test_*

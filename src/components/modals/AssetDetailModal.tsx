@@ -70,13 +70,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
               <span className="text-slate-400 block text-[11px] mb-0.5 font-medium">Serial Number</span>
               <span className="font-mono text-slate-900 font-semibold">{asset.serial || '—'}</span>
             </div>
-            <div>
-              <span className="text-slate-400 block text-[11px] mb-0.5 font-medium">Location</span>
-              <span className="font-semibold text-slate-900 flex items-center">
-                <MapPin className="w-3 h-3 mr-1 text-slate-400" />
-                {asset.location}
-              </span>
-            </div>
+
             <div>
               <span className="text-slate-400 block text-[11px] mb-0.5 font-medium">Purchase Date</span>
               <span className="font-semibold text-slate-900 flex items-center">

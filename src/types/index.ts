@@ -1,7 +1,7 @@
 export type AssetStatus = 'Ready to Deploy' | 'Deployed' | 'Pending' | 'In Repair' | 'Archived';
 
 export interface Asset {
-  id: string;
+  id: number;
   assetTag: string;
   name: string;
   model: string;
@@ -10,7 +10,6 @@ export interface Asset {
   status: AssetStatus;
   assignedToId?: string | null;
   assignedToName?: string | null;
-  location: string;
   purchaseDate: string;
   purchaseCost: number;
   notes?: string;

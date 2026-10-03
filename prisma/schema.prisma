@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+model User {
+  id           String  @id @default(uuid())
+  name         String
+  email        String  @unique
+  role         String  @default("Technician")
+  employeeNum  String
+  department   String
+  location     String
+  avatarUrl    String?
+  passwordHash String?
+}
+
+model Asset {
+  id             Int     @id @default(autoincrement())
+  assetTag       String  @unique
+  name           String
+  model          String
+  category       String
+  serial         String
+  status         String
+  assignedToId   String?
+  assignedToName String?
+  purchaseDate   String
+  purchaseCost   Float
+  notes          String?
+  updatedAt      DateTime @default(now()) @updatedAt
+}
+
+model License {
+  id              String   @id @default(uuid())
+  name            String
+  category        String
+  key             String
+  totalSeats      Int
+  assignedUserIds String[]
+  expirationDate  String
+  manufacturer    String
+  purchaseCost    Float
+}
+
+model Accessory {
+  id                String @id @default(uuid())
+  name              String
+  category          String
+  modelNumber       String
+  totalQuantity     Int
+  remainingQuantity Int
+  minQuantity       Int
+  location          String
+}
+
+model Consumable {
+  id                String @id @default(uuid())
+  name              String
+  category          String
+  modelNumber       String
+  totalQuantity     Int
+  remainingQuantity Int
+  minQuantity       Int
+  location          String
+}
+
+model EventItem {
+  id                   String   @id @default(uuid())
+  name                 String
+  department           String
+  startDate            String
+  endDate              String
+  location             String
+  primaryRequesterId   String
+  primaryRequesterName String
+  requesterIds         String[]
+  requesterNames       String[]
+  assetIds             String[]
+  status               String
+  dispatchStatus       String
+  purposeOrDescription String
+  expectedReturnDate   String?
+  contactPhone         String?
+  contactEmail         String?
+  projectCode          String?
+  specialInstructions  String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now()) @updatedAt
+}
+
+model ActivityLog {
+  id             String   @id @default(uuid())
+  action         String
+  itemType       String
+  itemId         String
+  itemName       String
+  targetUserName String?
+  adminName      String
+  timestamp      String
+  notes          String?
+}

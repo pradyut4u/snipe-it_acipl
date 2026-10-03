@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Asset, License, Accessory, Consumable, User, ActivityLog, ActiveTab, AssetStatus, EventItem, AuthUser } from '../types';
-import { initialAssets, initialLicenses, initialAccessories, initialConsumables, initialUsers, initialActivityLogs, initialEvents } from '../data/mockData';
+
 import { PREDEFINED_ACCOUNTS, DEFAULT_AUTH_USER } from '../data/authAccounts';
 
 interface AppContextType {
@@ -26,11 +26,11 @@ interface AppContextType {
 
   // Asset Actions
   addAsset: (asset: Omit<Asset, 'id' | 'updatedAt'>) => void;
-  updateAsset: (id: string, updates: Partial<Asset>) => void;
-  deleteAsset: (id: string) => void;
-  checkoutAsset: (assetId: string, userId: string, notes?: string) => void;
-  checkinAsset: (assetId: string, newStatus: AssetStatus, notes?: string) => void;
-  auditAsset: (assetId: string, notes?: string) => void;
+  updateAsset: (id: number, updates: Partial<Asset>) => void;
+  deleteAsset: (id: number) => void;
+  checkoutAsset: (assetId: number, userId: string, notes?: string) => void;
+  checkinAsset: (assetId: number, newStatus: AssetStatus, notes?: string) => void;
+  auditAsset: (assetId: number, notes?: string) => void;
 
   // License Actions
   assignLicense: (licenseId: string, userId: string) => void;
@@ -51,13 +51,13 @@ interface AppContextType {
   returnAllEventAssets: (eventId: string) => void;
 
   // Admin / Utility
-  resetToDefaults: () => void;
+
   exportDataJson: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const STORAGE_KEY_PREFIX = 'snipeit_';
+const STORAGE_KEY_PREFIX = 'acipl_v3_';
 
 function getStoredOrDefault<T>(key: string, defaultVal: T): T {
   try {
@@ -94,22 +94,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isAuthenticated = currentUser !== null;
 
-  const [assets, setAssets] = useState<Asset[]>(() => getStoredOrDefault('assets', initialAssets));
-  const [licenses, setLicenses] = useState<License[]>(() => getStoredOrDefault('licenses', initialLicenses));
-  const [accessories, setAccessories] = useState<Accessory[]>(() => getStoredOrDefault('accessories', initialAccessories));
-  const [consumables, setConsumables] = useState<Consumable[]>(() => getStoredOrDefault('consumables', initialConsumables));
-  const [users] = useState<User[]>(() => getStoredOrDefault('users', initialUsers));
-  const [events, setEvents] = useState<EventItem[]>(() => getStoredOrDefault('events', initialEvents));
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(() => getStoredOrDefault('logs', initialActivityLogs));
-
-  // Sync state to localStorage
+  const [assets, setAssets] = useState<Asset[]>([]);
+  
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'assets', JSON.stringify(assets));
-    } catch (e) {
-      console.warn('Storage full or unavailable', e);
-    }
-  }, [assets]);
+    fetch('http://localhost:3001/api/assets')
+      .then(res => res.json())
+      .then(data => setAssets(data))
+      .catch(err => console.error('Failed to fetch assets:', err));
+  }, []);
+  const [licenses, setLicenses] = useState<License[]>(() => getStoredOrDefault('licenses', []));
+  const [accessories, setAccessories] = useState<Accessory[]>(() => getStoredOrDefault('accessories', []));
+  const [consumables, setConsumables] = useState<Consumable[]>(() => getStoredOrDefault('consumables', []));
+  const [users] = useState<User[]>(() => getStoredOrDefault('users', []));
+  const [events, setEvents] = useState<EventItem[]>(() => getStoredOrDefault('events', []));
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(() => getStoredOrDefault('logs', []));
+
+
 
   useEffect(() => {
     try {
@@ -151,13 +151,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [activityLogs]);
 
-  const logAction = (action: ActivityLog['action'], itemType: ActivityLog['itemType'], itemId: string, itemName: string, targetUserName?: string, notes?: string) => {
+  const logAction = (action: ActivityLog['action'], itemType: ActivityLog['itemType'], itemId: string | number, itemName: string, targetUserName?: string, notes?: string) => {
     const adminLabel = currentUser ? `${currentUser.name} (${currentUser.role})` : 'System Administrator';
     const newLog: ActivityLog = {
       id: 'log-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
       action,
       itemType,
-      itemId,
+      itemId: String(itemId),
       itemName,
       targetUserName,
       adminName: adminLabel,
@@ -244,40 +244,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem(STORAGE_KEY_PREFIX + 'logged_out', 'true');
   };
 
-  const addAsset = (data: Omit<Asset, 'id' | 'updatedAt'>) => {
-    const id = 'ast-' + Date.now();
-    const newAsset: Asset = {
-      ...data,
-      id,
-      updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
-    };
-    setAssets(prev => [newAsset, ...prev]);
-    logAction('create', 'asset', id, `${newAsset.name} [${newAsset.assetTag}]`, undefined, 'Created new asset record');
-  };
-
-  const updateAsset = (id: string, updates: Partial<Asset>) => {
-    setAssets(prev => prev.map(item => {
-      if (item.id === id) {
-        const updated = {
-          ...item,
-          ...updates,
-          updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
-        };
-        logAction('update', 'asset', id, `${updated.name} [${updated.assetTag}]`, undefined, 'Updated asset properties');
-        return updated;
+  const addAsset = async (data: Omit<Asset, 'id' | 'updatedAt'>) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        const newAsset = await response.json();
+        setAssets(prev => [newAsset, ...prev]);
+        logAction('create', 'asset', newAsset.id, `${newAsset.name} [${newAsset.assetTag}]`, undefined, 'Created new asset record in DB');
       }
-      return item;
-    }));
+    } catch (err) {
+      console.error('Failed to add asset', err);
+    }
   };
 
-  const deleteAsset = (id: string) => {
-    const target = assets.find(a => a.id === id);
-    if (!target) return;
-    setAssets(prev => prev.filter(a => a.id !== id));
-    logAction('delete', 'asset', id, `${target.name} [${target.assetTag}]`, undefined, 'Deleted asset record');
+  const updateAsset = async (id: number, updates: Partial<Asset>) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/assets/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        setAssets(prev => prev.map(item => item.id === id ? updated : item));
+        logAction('update', 'asset', id, `${updated.name} [${updated.assetTag}]`, undefined, 'Updated asset properties in DB');
+      }
+    } catch (err) {
+      console.error('Failed to update asset', err);
+    }
   };
 
-  const checkoutAsset = (assetId: string, userId: string, notes?: string) => {
+  const deleteAsset = async (id: number) => {
+    try {
+      const target = assets.find(a => a.id === id);
+      if (!target) return;
+      const response = await fetch(`http://localhost:3001/api/assets/${id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setAssets(prev => prev.filter(a => a.id !== id));
+        logAction('delete', 'asset', id, `${target.name} [${target.assetTag}]`, undefined, 'Deleted asset record from DB');
+      }
+    } catch (err) {
+      console.error('Failed to delete asset', err);
+    }
+  };
+
+  const checkoutAsset = (assetId: number, userId: string, notes?: string) => {
     const user = users.find(u => u.id === userId);
     if (!user) return;
 
@@ -297,7 +314,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   };
 
-  const checkinAsset = (assetId: string, newStatus: AssetStatus = 'Ready to Deploy', notes?: string) => {
+  const checkinAsset = (assetId: number, newStatus: AssetStatus = 'Ready to Deploy', notes?: string) => {
     setAssets(prev => prev.map(item => {
       if (item.id === assetId) {
         const priorUser = item.assignedToName;
@@ -315,7 +332,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   };
 
-  const auditAsset = (assetId: string, notes?: string) => {
+  const auditAsset = (assetId: number, notes?: string) => {
     setAssets(prev => prev.map(item => {
       if (item.id === assetId) {
         const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16);
@@ -441,7 +458,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (autoDispatchAssets && newEvent.assetIds.length > 0) {
       // Automatically deploy selected assets to the primary requester
       setAssets(prev => prev.map(asset => {
-        if (newEvent.assetIds.includes(asset.id)) {
+        if (newEvent.assetIds.includes(String(asset.id))) {
           logAction(
             'checkout',
             'asset',
@@ -507,7 +524,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Mark assets as deployed
     if (event.assetIds.length > 0) {
       setAssets(prev => prev.map(asset => {
-        if (event.assetIds.includes(asset.id)) {
+        if (event.assetIds.includes(String(asset.id))) {
           logAction(
             'checkout',
             'asset',
@@ -552,7 +569,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Mark assets as Ready to Deploy
     if (event.assetIds.length > 0) {
       setAssets(prev => prev.map(asset => {
-        if (event.assetIds.includes(asset.id)) {
+        if (event.assetIds.includes(String(asset.id))) {
           logAction(
             'checkin',
             'asset',
@@ -576,19 +593,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     logAction('update', 'event', eventId, event.name, event.primaryRequesterName, `Checked in all returned assets from event. Event marked Completed.`);
   };
 
-  const resetToDefaults = () => {
-    setAssets(initialAssets);
-    setLicenses(initialLicenses);
-    setAccessories(initialAccessories);
-    setConsumables(initialConsumables);
-    setEvents(initialEvents);
-    setActivityLogs(initialActivityLogs);
-    try {
-      localStorage.clear();
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  // const resetToDefaults = () => {
+  //   setAssets(initialAssets);
+  //   setLicenses(initialLicenses);
+  //   setAccessories(initialAccessories);
+  //   setConsumables(initialConsumables);
+  //   setEvents(initialEvents);
+  //   setActivityLogs(initialActivityLogs);
+  //   try {
+  //     localStorage.clear();
+  //   } catch (e) {
+  //     console.error(e);
+  //   }
+  // };
 
   const exportDataJson = () => {
     const data = {
@@ -647,7 +664,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteEvent,
         dispatchAllEventAssets,
         returnAllEventAssets,
-        resetToDefaults,
         exportDataJson,
       }}
     >

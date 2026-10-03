@@ -15,10 +15,9 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
   const [assetTag, setAssetTag] = useState('');
   const [name, setName] = useState('');
   const [model, setModel] = useState('');
-  const [category, setCategory] = useState('Laptops');
+  const [category, setCategory] = useState('RB 4011');
   const [serial, setSerial] = useState('');
   const [status, setStatus] = useState<AssetStatus>('Ready to Deploy');
-  const [location, setLocation] = useState('San Francisco HQ');
   const [purchaseCost, setPurchaseCost] = useState<number>(1200);
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
@@ -31,7 +30,6 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
       setCategory(assetToEdit.category);
       setSerial(assetToEdit.serial);
       setStatus(assetToEdit.status);
-      setLocation(assetToEdit.location);
       setPurchaseCost(assetToEdit.purchaseCost || 0);
       setPurchaseDate(assetToEdit.purchaseDate);
       setNotes(assetToEdit.notes || '');
@@ -41,10 +39,9 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
       setAssetTag(`AST-00${nextNum}`);
       setName('');
       setModel('');
-      setCategory('Laptops');
+      setCategory('RB 4011');
       setSerial('');
       setStatus('Ready to Deploy');
-      setLocation('San Francisco HQ');
       setPurchaseCost(1500);
       setPurchaseDate(new Date().toISOString().slice(0, 10));
       setNotes('');
@@ -65,7 +62,6 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
         category,
         serial,
         status,
-        location,
         purchaseCost: Number(purchaseCost),
         purchaseDate,
         notes,
@@ -78,7 +74,6 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
         category,
         serial,
         status,
-        location,
         purchaseCost: Number(purchaseCost),
         purchaseDate,
         notes,
@@ -159,13 +154,51 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white"
               >
-                <option value="Laptops">Laptops</option>
-                <option value="Desktops">Desktops</option>
-                <option value="Displays">Displays</option>
-                <option value="Networking">Networking</option>
-                <option value="Tablets">Tablets</option>
-                <option value="Mobile Phones">Mobile Phones</option>
-                <option value="Servers">Servers</option>
+                <option value="RB 4011">RB 4011</option>
+                <option value="Tp-Link POE switch Managed">Tp-Link POE switch Managed</option>
+                <option value="Tplink POE switch Unmanaged">Tplink POE switch Unmanaged</option>
+                <option value="Tp-Link switch Omada">Tp-Link switch Omada</option>
+                <option value="Tp-Link switch 16 Port">Tp-Link switch 16 Port</option>
+                <option value="Tp-Link OLT">Tp-Link OLT</option>
+                <option value="Mikrotik CCR 2004">Mikrotik CCR 2004</option>
+                <option value="Mikrotik CCR 1009">Mikrotik CCR 1009</option>
+                <option value="Cisco switch 24 Port">Cisco switch 24 Port</option>
+                <option value="Tp-Link Router 1200 C6">Tp-Link Router 1200 C6</option>
+                <option value="Tp-Link Router AX1500">Tp-Link Router AX1500</option>
+                <option value="Tp-Link Router 1800">Tp-Link Router 1800</option>
+                <option value="Tp-Link ONU">Tp-Link ONU</option>
+                <option value="Tp-Link AP 660 Omada">Tp-Link AP 660 Omada</option>
+                <option value="Tp-Link AP 670 Omada">Tp-Link AP 670 Omada</option>
+                <option value="Tp-Link 1200 ONT">Tp-Link 1200 ONT</option>
+                <option value="Tp-Link 3000 ONT">Tp-Link 3000 ONT</option>
+                <option value="Cisco AP C9115AXI-D">Cisco AP C9115AXI-D</option>
+                <option value="Cisco AP 3802I-D-K9">Cisco AP 3802I-D-K9</option>
+                <option value="Ruckus 750/650">Ruckus 750/650</option>
+                <option value="Cisco Switch 8 Port">Cisco Switch 8 Port</option>
+                <option value="Cisco Switch 24/28/48 Port">Cisco Switch 24/28/48 Port</option>
+                <option value="SFP 1G/10G/Copper">SFP 1G/10G/Copper</option>
+                <option value="Telephone">Telephone</option>
+                <option value="VGA Splitter 2Port">VGA Splitter 2Port</option>
+                <option value="VGA Splitter 8Port">VGA Splitter 8Port</option>
+                <option value="HDTV Splitter 2/4 Port">HDTV Splitter 2/4 Port</option>
+                <option value="Tplink Gigabit switch SG108E">Tplink Gigabit switch SG108E</option>
+                <option value="Tplink Switch 24 Port SG1024D">Tplink Switch 24 Port SG1024D</option>
+                <option value="Tplink Switch 16 Port SG1016D">Tplink Switch 16 Port SG1016D</option>
+                <option value="Lan Tester">Lan Tester</option>
+                <option value="Mini UPS">Mini UPS</option>
+                <option value="POE Injector">POE Injector</option>
+                <option value="Brother Printer">Brother Printer</option>
+                <option value="LED LG/Zebster">LED LG/Zebster</option>
+                <option value="Fiber Machine">Fiber Machine</option>
+                <option value="UPS">UPS</option>
+                <option value="Location ONT">Location ONT</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Laser">Laser</option>
+                <option value="Dell Power supply">Dell Power supply</option>
+                <option value="Printer">Printer</option>
+                <option value="Mini PC">Mini PC</option>
+                <option value="Cisco/HP/Unifi/Ruckus AP">Cisco/HP/Unifi/Ruckus AP</option>
+                <option value="Cisco server">Cisco server</option>
               </select>
             </div>
           </div>
@@ -183,19 +216,6 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
                 <option value="Pending">Pending</option>
                 <option value="In Repair">In Repair</option>
                 <option value="Archived">Archived</option>
-              </select>
-            </div>
-            <div>
-              <label className="block font-semibold text-slate-700 mb-1">Physical Location</label>
-              <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white"
-              >
-                <option value="San Francisco HQ">San Francisco HQ</option>
-                <option value="New York Office">New York Office</option>
-                <option value="London Hub">London Hub</option>
-                <option value="Remote Storage">Remote Storage</option>
               </select>
             </div>
           </div>
