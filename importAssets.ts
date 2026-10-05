@@ -41,7 +41,7 @@ async function main() {
       assetTag: tag,
       name: 'POE Switch Manage',
       model: 'Tp-Link',
-      category: 'SG-2210P',
+      category: 'Managed PoE Switch',
       serial: serials[i],
       status: 'Ready to Deploy',
       purchaseDate: new Date().toISOString().slice(0, 10),

@@ -18,7 +18,7 @@ async function main() {
       assetTag: tag,
       name: 'Switch SG1016D',
       model: 'Tp-Link',
-      category: 'Tplink Switch 16 Port SG1016D',
+      category: 'Switch',
       serial: newAssets[i].serial,
       status: 'Ready to Deploy',
       purchaseDate: new Date().toISOString().slice(0, 10),
@@ -43,3 +43,5 @@ async function main() {
 }
 
 main().catch(console.error);
+
+export {};

@@ -15,7 +15,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
   const [assetTag, setAssetTag] = useState('');
   const [name, setName] = useState('');
   const [model, setModel] = useState('');
-  const [category, setCategory] = useState('RB 4011');
+  const [category, setCategory] = useState('Router');
   const [serial, setSerial] = useState('');
   const [status, setStatus] = useState<AssetStatus>('Ready to Deploy');
   const [purchaseCost, setPurchaseCost] = useState<number>(1200);
@@ -39,7 +39,7 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
       setAssetTag(`AST-00${nextNum}`);
       setName('');
       setModel('');
-      setCategory('RB 4011');
+      setCategory('Router');
       setSerial('');
       setStatus('Ready to Deploy');
       setPurchaseCost(1500);
@@ -154,51 +154,30 @@ export const AssetModal: React.FC<AssetModalProps> = ({ isOpen, onClose, assetTo
                 onChange={(e) => setCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white"
               >
-                <option value="RB 4011">RB 4011</option>
-                <option value="Tp-Link POE switch Managed">Tp-Link POE switch Managed</option>
-                <option value="Tplink POE switch Unmanaged">Tplink POE switch Unmanaged</option>
-                <option value="Tp-Link switch Omada">Tp-Link switch Omada</option>
-                <option value="Tp-Link switch 16 Port">Tp-Link switch 16 Port</option>
-                <option value="Tp-Link OLT">Tp-Link OLT</option>
-                <option value="Mikrotik CCR 2004">Mikrotik CCR 2004</option>
-                <option value="Mikrotik CCR 1009">Mikrotik CCR 1009</option>
-                <option value="Cisco switch 24 Port">Cisco switch 24 Port</option>
-                <option value="Tp-Link Router 1200 C6">Tp-Link Router 1200 C6</option>
-                <option value="Tp-Link Router AX1500">Tp-Link Router AX1500</option>
-                <option value="Tp-Link Router 1800">Tp-Link Router 1800</option>
-                <option value="Tp-Link ONU">Tp-Link ONU</option>
-                <option value="Tp-Link AP 660 Omada">Tp-Link AP 660 Omada</option>
-                <option value="Tp-Link AP 670 Omada">Tp-Link AP 670 Omada</option>
-                <option value="Tp-Link 1200 ONT">Tp-Link 1200 ONT</option>
-                <option value="Tp-Link 3000 ONT">Tp-Link 3000 ONT</option>
-                <option value="Cisco AP C9115AXI-D">Cisco AP C9115AXI-D</option>
-                <option value="Cisco AP 3802I-D-K9">Cisco AP 3802I-D-K9</option>
-                <option value="Ruckus 750/650">Ruckus 750/650</option>
-                <option value="Cisco Switch 8 Port">Cisco Switch 8 Port</option>
-                <option value="Cisco Switch 24/28/48 Port">Cisco Switch 24/28/48 Port</option>
-                <option value="SFP 1G/10G/Copper">SFP 1G/10G/Copper</option>
+                <option value="Router">Router</option>
+                <option value="Managed PoE Switch">Managed PoE Switch</option>
+                <option value="Unmanaged PoE Switch">Unmanaged PoE Switch</option>
+                <option value="Switch">Switch</option>
+                <option value="OLT">OLT</option>
+                <option value="Dual Band Router">Dual Band Router</option>
+                <option value="ONU">ONU</option>
+                <option value="Access Point">Access Point</option>
+                <option value="ONT">ONT</option>
+                <option value="SFP / Transceiver">SFP / Transceiver</option>
                 <option value="Telephone">Telephone</option>
-                <option value="VGA Splitter 2Port">VGA Splitter 2Port</option>
-                <option value="VGA Splitter 8Port">VGA Splitter 8Port</option>
-                <option value="HDTV Splitter 2/4 Port">HDTV Splitter 2/4 Port</option>
-                <option value="Tplink Gigabit switch SG108E">Tplink Gigabit switch SG108E</option>
-                <option value="Tplink Switch 24 Port SG1024D">Tplink Switch 24 Port SG1024D</option>
-                <option value="Tplink Switch 16 Port SG1016D">Tplink Switch 16 Port SG1016D</option>
-                <option value="Lan Tester">Lan Tester</option>
-                <option value="Mini UPS">Mini UPS</option>
-                <option value="POE Injector">POE Injector</option>
-                <option value="Brother Printer">Brother Printer</option>
-                <option value="LED LG/Zebster">LED LG/Zebster</option>
-                <option value="Fiber Machine">Fiber Machine</option>
+                <option value="VGA Splitter">VGA Splitter</option>
+                <option value="Video Splitter">Video Splitter</option>
+                <option value="Network Cable Tester">Network Cable Tester</option>
                 <option value="UPS">UPS</option>
-                <option value="Location ONT">Location ONT</option>
-                <option value="Laptop">Laptop</option>
-                <option value="Laser">Laser</option>
-                <option value="Dell Power supply">Dell Power supply</option>
+                <option value="PoE Injector">PoE Injector</option>
                 <option value="Printer">Printer</option>
+                <option value="Display / Monitor">Display / Monitor</option>
+                <option value="Fiber Equipment">Fiber Equipment</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Tool">Tool</option>
+                <option value="Power Supply">Power Supply</option>
                 <option value="Mini PC">Mini PC</option>
-                <option value="Cisco/HP/Unifi/Ruckus AP">Cisco/HP/Unifi/Ruckus AP</option>
-                <option value="Cisco server">Cisco server</option>
+                <option value="Server">Server</option>
               </select>
             </div>
           </div>
