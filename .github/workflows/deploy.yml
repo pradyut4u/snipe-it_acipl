@@ -1,0 +1,50 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            # Create project directory if it doesn't exist
+            if [ ! -d "/home/${{ secrets.SERVER_USERNAME }}/acipl-inventory" ]; then
+              git clone https://github.com/${{ github.repository }}.git /home/${{ secrets.SERVER_USERNAME }}/acipl-inventory
+            fi
+            
+            cd /home/${{ secrets.SERVER_USERNAME }}/acipl-inventory
+            
+            # Pull latest code
+            git pull origin main
+            
+            # Install Node modules
+            npm install
+            
+            # Generate Prisma Client
+            npx prisma generate
+            
+            # Build the Vite Frontend
+            npm run build
+            
+            # Ensure PM2 is installed globally
+            sudo npm install -g pm2 || npm install -g pm2
+            
+            # Restart or Start the backend server (API)
+            pm2 restart "ims-backend" || pm2 start "npm" --name "ims-backend" -- run server
+            
+            # Restart or Start the frontend preview server (Serves UI)
+            pm2 restart "ims-frontend" || pm2 start "npm" --name "ims-frontend" -- run preview
+            
+            # Save PM2 process list to restart on system reboot
+            pm2 save
