@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { PREDEFINED_ACCOUNTS } from '../data/authAccounts';
 import { 
   Search, 
   Plus, 
@@ -42,7 +41,6 @@ export const Header: React.FC<HeaderProps> = ({
   const { 
     searchQuery, 
     setSearchQuery, 
-    resetToDefaults, 
     assets, 
     licenses, 
     accessories, 
@@ -265,19 +263,6 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          <button
-            id="header-reset-btn"
-            onClick={() => {
-              if (window.confirm('Reset all assets and inventory back to initial demo data?')) {
-                resetToDefaults();
-              }
-            }}
-            className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg transition-colors cursor-pointer"
-            title="Reset to Initial Data"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </button>
-
           {/* User Profile & Logout Menu */}
           <div className="relative pl-2 border-l border-slate-700" ref={profileDropdownRef}>
             <button
@@ -346,37 +331,6 @@ export const Header: React.FC<HeaderProps> = ({
                       <span className="truncate">{currentUser?.location || 'HQ Facility'}</span>
                     </div>
                   </div>
-                </div>
-
-                {/* Quick Account Switch */}
-                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Switch Demo Account
-                </div>
-                <div className="space-y-0.5 mb-2">
-                  {PREDEFINED_ACCOUNTS.map((account) => {
-                    const isCurrent = currentUser?.email.toLowerCase() === account.email.toLowerCase();
-                    return (
-                      <button
-                        key={account.id}
-                        type="button"
-                        onClick={() => {
-                          quickLogin(account);
-                          setShowProfileMenu(false);
-                        }}
-                        className={`w-full px-2.5 py-1.5 text-left rounded-lg text-xs flex items-center justify-between transition-colors cursor-pointer ${
-                          isCurrent
-                            ? 'bg-sky-50 text-sky-900 font-semibold'
-                            : 'text-slate-700 hover:bg-slate-100'
-                        }`}
-                      >
-                        <div className="truncate pr-2">
-                          <div className="truncate">{account.name}</div>
-                          <div className="text-[10px] text-slate-400 font-normal">{account.role}</div>
-                        </div>
-                        {isCurrent && <Check className="w-3.5 h-3.5 text-sky-600 shrink-0" />}
-                      </button>
-                    );
-                  })}
                 </div>
 
                 <div className="border-t border-slate-100 pt-1">

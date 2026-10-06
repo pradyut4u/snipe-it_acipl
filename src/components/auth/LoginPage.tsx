@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PREDEFINED_ACCOUNTS } from '../../data/authAccounts';
 import { AuthUser } from '../../types';
 import { 
   Box, 
@@ -21,8 +20,8 @@ import {
 
 export const LoginPage: React.FC = () => {
   const { login, quickLogin } = useApp();
-  const [email, setEmail] = useState('admin@acipl.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,15 +49,7 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleSelectAccount = (account: typeof PREDEFINED_ACCOUNTS[0]) => {
-    setEmail(account.email);
-    setPassword(account.passwordHash);
-    setErrorMessage(null);
-  };
 
-  const handleDirectQuickLogin = (account: typeof PREDEFINED_ACCOUNTS[0]) => {
-    quickLogin(account);
-  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-sky-500 selection:text-white relative overflow-hidden">
@@ -154,7 +145,7 @@ export const LoginPage: React.FC = () => {
             <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/50 space-y-6">
               <div className="space-y-1">
                 <h2 className="text-xl font-bold text-white tracking-tight">Account Login</h2>
-                <p className="text-xs text-slate-400">Enter your credentials or pick a demo profile below</p>
+                <p className="text-xs text-slate-400">Enter your credentials below</p>
               </div>
 
               {/* Error Banner */}
@@ -197,9 +188,6 @@ export const LoginPage: React.FC = () => {
                     <label htmlFor="login-password" className="block text-xs font-medium text-slate-300">
                       Password
                     </label>
-                    <span className="text-[11px] text-slate-400 hover:text-sky-400 cursor-pointer">
-                      Demo password: <span className="font-mono text-sky-300">admin123</span>
-                    </span>
                   </div>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
@@ -259,69 +247,7 @@ export const LoginPage: React.FC = () => {
                 </button>
               </form>
 
-              {/* Quick Login Section */}
-              <div className="pt-2 border-t border-slate-800">
-                <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider flex items-center">
-                    <Sparkles className="w-3.5 h-3.5 mr-1 text-amber-400" />
-                    1-Click Instant Login (Demo Profiles)
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {PREDEFINED_ACCOUNTS.map((acc) => {
-                    const isSelected = email.toLowerCase() === acc.email.toLowerCase();
-                    const roleColor = {
-                      Superadmin: 'text-rose-400 bg-rose-950/60 border-rose-800/60',
-                      'IT Admin': 'text-sky-400 bg-sky-950/60 border-sky-800/60',
-                      'Inventory Manager': 'text-amber-400 bg-amber-950/60 border-amber-800/60',
-                      Technician: 'text-emerald-400 bg-emerald-950/60 border-emerald-800/60'
-                    }[acc.role] || 'text-slate-400 bg-slate-900 border-slate-800';
-
-                    return (
-                      <div
-                        key={acc.id}
-                        className={`p-2.5 rounded-xl border transition-all text-left group flex flex-col justify-between ${
-                          isSelected
-                            ? 'bg-slate-800/90 border-sky-500/80 shadow-xs'
-                            : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 hover:bg-slate-800/50'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="text-xs font-semibold text-white group-hover:text-sky-300 transition-colors">
-                              {acc.name}
-                            </div>
-                            <div className="text-[10px] text-slate-400 font-mono truncate max-w-[140px]">
-                              {acc.email}
-                            </div>
-                          </div>
-                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider ${roleColor}`}>
-                            {acc.role}
-                          </span>
-                        </div>
-
-                        <div className="mt-2.5 flex items-center space-x-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleSelectAccount(acc)}
-                            className="flex-1 py-1 px-2 text-[10px] font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors text-center cursor-pointer"
-                          >
-                            Fill Form
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDirectQuickLogin(acc)}
-                            className="flex-1 py-1 px-2 text-[10px] font-semibold rounded-lg bg-sky-600/80 hover:bg-sky-500 text-white transition-colors text-center cursor-pointer shadow-xs"
-                          >
-                            Login Now
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
 
             </div>
           </div>

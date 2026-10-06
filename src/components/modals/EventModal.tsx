@@ -600,14 +600,14 @@ export const EventModal: React.FC<EventModalProps> = ({
             {/* Assets Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-56 overflow-y-auto p-1 border border-slate-200 rounded-lg bg-slate-50/50">
               {filteredAssets.map((asset) => {
-                const isSelected = selectedAssetIds.includes(asset.id);
+                const isSelected = selectedAssetIds.includes(String(asset.id));
                 const isAvailable = asset.status === 'Ready to Deploy';
 
                 return (
                   <div
                     key={asset.id}
                     id={`asset-select-${asset.id}`}
-                    onClick={() => toggleAsset(asset.id)}
+                    onClick={() => toggleAsset(String(asset.id))}
                     className={`p-2.5 rounded-lg border text-left cursor-pointer transition-all flex items-start space-x-2.5 ${
                       isSelected 
                         ? 'border-emerald-500 bg-emerald-50/80 shadow-xs' 
@@ -671,7 +671,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               </label>
               <textarea
                 id="event-purpose-textarea"
-                rows={2}
+                rows={6}
                 placeholder="Describe the operational purpose, booth demo setup, or client presentation requirements..."
                 value={purposeOrDescription}
                 onChange={(e) => setPurposeOrDescription(e.target.value)}

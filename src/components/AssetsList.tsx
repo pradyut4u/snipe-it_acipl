@@ -43,7 +43,7 @@ export const AssetsList: React.FC<AssetsListProps> = ({
   onOpenScannerModal,
   onOpenBatchBarcodeModal
 }) => {
-  const { assets, deleteAsset, searchQuery, setSearchQuery } = useApp();
+  const { assets, deleteAsset, searchQuery, setSearchQuery, currentUser } = useApp();
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
@@ -148,14 +148,16 @@ export const AssetsList: React.FC<AssetsListProps> = ({
             <span>Export CSV</span>
           </button>
 
-          <button
-            id="create-asset-btn"
-            onClick={onOpenNewAssetModal}
-            className="inline-flex items-center space-x-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Asset</span>
-          </button>
+          {currentUser?.role !== 'Tech' && (
+            <button
+              id="create-asset-btn"
+              onClick={onOpenNewAssetModal}
+              className="inline-flex items-center space-x-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors shadow-sm cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Asset</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -272,7 +274,7 @@ export const AssetsList: React.FC<AssetsListProps> = ({
                         {/* Check Out Button */}
                         {asset.status !== 'Deployed' ? (
                           <button
-                            onClick={() => onOpenCheckoutModal(asset.id)}
+                            onClick={() => onOpenCheckoutModal(String(asset.id))}
                             className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer"
                             title="Check Out to User"
                           >
@@ -281,7 +283,7 @@ export const AssetsList: React.FC<AssetsListProps> = ({
                         ) : (
                           /* Check In Button */
                           <button
-                            onClick={() => onOpenCheckinModal(asset.id)}
+                            onClick={() => onOpenCheckinModal(String(asset.id))}
                             className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition-colors cursor-pointer"
                             title="Check In Asset"
                           >
@@ -305,25 +307,29 @@ export const AssetsList: React.FC<AssetsListProps> = ({
                           <QrCode className="w-4 h-4" />
                         </button>
 
-                        <button
-                          onClick={() => onOpenEditAssetModal(asset)}
-                          className="p-1 text-slate-500 hover:bg-slate-100 rounded transition-colors cursor-pointer"
-                          title="Edit Asset"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </button>
+                        {currentUser?.role !== 'Tech' && (
+                          <>
+                            <button
+                              onClick={() => onOpenEditAssetModal(asset)}
+                              className="p-1 text-slate-500 hover:bg-slate-100 rounded transition-colors cursor-pointer"
+                              title="Edit Asset"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
 
-                        <button
-                          onClick={() => {
-                            if (window.confirm(`Delete asset ${asset.assetTag} (${asset.name})?`)) {
-                              deleteAsset(asset.id);
-                            }
-                          }}
-                          className="p-1 text-rose-500 hover:bg-rose-50 rounded transition-colors cursor-pointer"
-                          title="Delete Asset"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Delete asset ${asset.assetTag} (${asset.name})?`)) {
+                                  deleteAsset(asset.id);
+                                }
+                              }}
+                              className="p-1 text-rose-500 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                              title="Delete Asset"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -10,6 +10,7 @@ import { ConsumablesList } from './components/ConsumablesList';
 import { UsersList } from './components/UsersList';
 import { EventsList } from './components/EventsList';
 import { ActivityLogs } from './components/ActivityLogs';
+import { MyPortal } from './components/MyPortal';
 
 import { AssetModal } from './components/modals/AssetModal';
 import { CheckoutModal } from './components/modals/CheckoutModal';
@@ -176,6 +177,8 @@ const MainLayout: React.FC = () => {
         <Sidebar />
 
         <main className="flex-1 p-6 overflow-y-auto max-w-7xl mx-auto w-full">
+          {activeTab === 'my-portal' && <MyPortal />}
+          
           {activeTab === 'dashboard' && (
             <Dashboard
               onOpenNewAssetModal={handleOpenNewAsset}

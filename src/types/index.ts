@@ -60,7 +60,7 @@ export interface User {
   avatarUrl?: string;
 }
 
-export type UserRole = 'Superadmin' | 'IT Admin' | 'Inventory Manager' | 'Technician';
+export type UserRole = 'Superadmin' | 'Admin' | 'Inventory Manager' | 'Tech';
 
 export interface AuthUser {
   id: string;
@@ -116,7 +116,7 @@ export interface EventItem {
   updatedAt: string;
 }
 
-export type ActiveTab = 'dashboard' | 'assets' | 'events' | 'barcodes' | 'licenses' | 'accessories' | 'consumables' | 'users' | 'activity';
+export type ActiveTab = 'dashboard' | 'my-portal' | 'assets' | 'events' | 'barcodes' | 'licenses' | 'accessories' | 'consumables' | 'users' | 'activity';
 
 export interface ScanAuditRecord {
   id: string;

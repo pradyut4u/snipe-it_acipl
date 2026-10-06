@@ -43,6 +43,25 @@ app.get('/api/users', async (req, res) => {
   res.json(users);
 });
 
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: email,
+        mode: 'insensitive'
+      },
+      passwordHash: password
+    }
+  });
+
+  if (user) {
+    res.json({ success: true, user });
+  } else {
+    res.status(401).json({ success: false, error: 'Invalid credentials' });
+  }
+});
+
 // Licenses
 app.get('/api/licenses', async (req, res) => {
   const items = await prisma.license.findMany();
@@ -63,8 +82,27 @@ app.get('/api/consumables', async (req, res) => {
 
 // Events
 app.get('/api/events', async (req, res) => {
-  const items = await prisma.eventItem.findMany();
+  const items = await prisma.eventItem.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
   res.json(items);
+});
+
+app.post('/api/events', async (req, res) => {
+  try {
+    const data = req.body;
+    // Omit fields that Prisma auto-generates or handles differently if necessary
+    const { id, createdAt, updatedAt, ...rest } = data;
+    const newEvent = await prisma.eventItem.create({
+      data: {
+        ...rest
+      }
+    });
+    res.json(newEvent);
+  } catch (error) {
+    console.error('Failed to create event:', error);
+    res.status(500).json({ error: 'Failed to create event' });
+  }
 });
 
 // ActivityLogs
@@ -73,7 +111,7 @@ app.get('/api/logs', async (req, res) => {
   res.json(items);
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3003;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

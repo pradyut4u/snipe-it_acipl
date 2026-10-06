@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Asset, License, Accessory, Consumable, User, ActivityLog, ActiveTab, AssetStatus, EventItem, AuthUser } from '../types';
 
-import { PREDEFINED_ACCOUNTS, DEFAULT_AUTH_USER } from '../data/authAccounts';
 
 interface AppContextType {
   activeTab: ActiveTab;
@@ -72,7 +71,6 @@ function getStoredOrDefault<T>(key: string, defaultVal: T): T {
 }
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Authentication State
@@ -86,18 +84,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (loggedOut === 'true') {
         return null;
       }
-      return DEFAULT_AUTH_USER;
+      return null;
     } catch {
-      return DEFAULT_AUTH_USER;
+      return null;
     }
   });
 
   const isAuthenticated = currentUser !== null;
+  const [activeTab, setActiveTab] = useState<ActiveTab>(currentUser?.role === 'Tech' ? 'my-portal' : 'dashboard');
 
   const [assets, setAssets] = useState<Asset[]>([]);
   
   useEffect(() => {
-    fetch('http://localhost:3001/api/assets')
+    fetch('http://localhost:3003/api/assets')
       .then(res => res.json())
       .then(data => setAssets(data))
       .catch(err => console.error('Failed to fetch assets:', err));
@@ -105,11 +104,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [licenses, setLicenses] = useState<License[]>(() => getStoredOrDefault('licenses', []));
   const [accessories, setAccessories] = useState<Accessory[]>(() => getStoredOrDefault('accessories', []));
   const [consumables, setConsumables] = useState<Consumable[]>(() => getStoredOrDefault('consumables', []));
-  const [users] = useState<User[]>(() => getStoredOrDefault('users', []));
+  const [users, setUsers] = useState<User[]>(() => getStoredOrDefault('users', []));
   const [events, setEvents] = useState<EventItem[]>(() => getStoredOrDefault('events', []));
+
+  useEffect(() => {
+    fetch('http://localhost:3003/api/events')
+      .then(res => res.json())
+      .then(data => setEvents(data))
+      .catch(err => console.error('Failed to fetch events:', err));
+  }, []);
+
+  useEffect(() => {
+    fetch('http://localhost:3003/api/users')
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(err => console.error('Failed to fetch users:', err));
+  }, []);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(() => getStoredOrDefault('logs', []));
 
-
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_PREFIX + 'users', JSON.stringify(users));
+    } catch (e) {
+      console.warn('Storage full or unavailable', e);
+    }
+  }, [users]);
 
   useEffect(() => {
     try {
@@ -168,60 +187,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    // Artificial small delay for realistic UX feedback
-    await new Promise(resolve => setTimeout(resolve, 350));
-    
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
+    try {
+      const response = await fetch('http://localhost:3003/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email.trim(), password: password.trim() })
+      });
 
-    const matchedAccount = PREDEFINED_ACCOUNTS.find(
-      acc => acc.email.toLowerCase() === cleanEmail
-    );
+      const data = await response.json();
 
-    if (matchedAccount) {
-      if (matchedAccount.passwordHash === cleanPass) {
+      if (data.success && data.user) {
         const authUser: AuthUser = {
-          id: matchedAccount.id,
-          name: matchedAccount.name,
-          email: matchedAccount.email,
-          role: matchedAccount.role,
-          employeeNum: matchedAccount.employeeNum,
-          department: matchedAccount.department,
-          location: matchedAccount.location,
-          avatarUrl: matchedAccount.avatarUrl,
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role as any,
+          employeeNum: data.user.employeeNum,
+          department: data.user.department,
+          location: data.user.location,
+          avatarUrl: data.user.avatarUrl,
           lastLogin: 'Just now'
         };
         setCurrentUser(authUser);
         localStorage.setItem(STORAGE_KEY_PREFIX + 'auth_user', JSON.stringify(authUser));
         localStorage.removeItem(STORAGE_KEY_PREFIX + 'logged_out');
+        
+        if (authUser.role === 'Tech') {
+          setActiveTab('my-portal');
+        } else {
+          setActiveTab('dashboard');
+        }
+        
         logAction('login', 'system', authUser.id, `User Login: ${authUser.name}`, undefined, `Session opened via web portal (${authUser.role})`);
         return { success: true };
       } else {
-        return { success: false, error: 'Incorrect password. Please verify your credentials.' };
+        return { success: false, error: data.error || 'Authentication failed' };
       }
+    } catch (err) {
+      console.error('Login error', err);
+      return { success: false, error: 'Network error during login.' };
     }
-
-    // Also allow logging in with any user in the directory
-    const directoryUser = users.find(u => u.email.toLowerCase() === cleanEmail);
-    if (directoryUser) {
-      const authUser: AuthUser = {
-        id: directoryUser.id,
-        name: directoryUser.name,
-        email: directoryUser.email,
-        role: 'Technician',
-        employeeNum: directoryUser.employeeNum,
-        department: directoryUser.department,
-        location: directoryUser.location,
-        lastLogin: 'Just now'
-      };
-      setCurrentUser(authUser);
-      localStorage.setItem(STORAGE_KEY_PREFIX + 'auth_user', JSON.stringify(authUser));
-      localStorage.removeItem(STORAGE_KEY_PREFIX + 'logged_out');
-      logAction('login', 'system', authUser.id, `User Login: ${authUser.name}`, undefined, 'Session opened via web portal');
-      return { success: true };
-    }
-
-    return { success: false, error: 'No account found with this email address.' };
   };
 
   const quickLogin = (account: AuthUser) => {
@@ -246,7 +253,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addAsset = async (data: Omit<Asset, 'id' | 'updatedAt'>) => {
     try {
-      const response = await fetch('http://localhost:3001/api/assets', {
+      const response = await fetch('http://localhost:3003/api/assets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -263,7 +270,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateAsset = async (id: number, updates: Partial<Asset>) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/assets/${id}`, {
+      const response = await fetch(`http://localhost:3003/api/assets/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -282,7 +289,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const target = assets.find(a => a.id === id);
       if (!target) return;
-      const response = await fetch(`http://localhost:3001/api/assets/${id}`, {
+      const response = await fetch(`http://localhost:3003/api/assets/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -452,7 +459,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updatedAt: timestamp,
     };
 
-    setEvents(prev => [newEvent, ...prev]);
+    // Save to backend
+    fetch('http://localhost:3003/api/events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEvent),
+    })
+      .then(res => res.json())
+      .then(savedEvent => setEvents(prev => [savedEvent, ...prev]))
+      .catch(err => {
+        console.error('Failed to save event to backend', err);
+        // Fallback to local state if backend fails
+        setEvents(prev => [newEvent, ...prev]);
+      });
+
     logAction('create', 'event', id, newEvent.name, newEvent.primaryRequesterName, `Created company event schedule with ${newEvent.assetIds.length} requested assets`);
 
     if (autoDispatchAssets && newEvent.assetIds.length > 0) {
@@ -509,19 +529,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16);
 
     // Update event status
+    const newStatus = event.status === 'Completed' || event.status === 'Cancelled' ? event.status : 'Active';
     setEvents(prev => prev.map(e => {
       if (e.id === eventId) {
         return {
           ...e,
           dispatchStatus: 'Dispatched',
-          status: e.status === 'Completed' || e.status === 'Cancelled' ? e.status : 'Active',
+          status: newStatus,
           updatedAt: timestamp,
         };
       }
       return e;
     }));
 
-    // Mark assets as deployed
+    // Mark assets as deployed in local state and DB
+    if (event.assetIds.length > 0) {
+      event.assetIds.forEach(assetIdStr => {
+        const assetId = parseInt(assetIdStr);
+        if (!isNaN(assetId)) {
+          updateAsset(assetId, {
+            status: 'Deployed',
+            assignedToId: event.primaryRequesterId,
+            assignedToName: event.primaryRequesterName,
+          });
+        }
+      });
+    }
     if (event.assetIds.length > 0) {
       setAssets(prev => prev.map(asset => {
         if (event.assetIds.includes(String(asset.id))) {
@@ -566,7 +599,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return e;
     }));
 
-    // Mark assets as Ready to Deploy
+    // Mark assets as Ready to Deploy in local state and DB
+    if (event.assetIds.length > 0) {
+      event.assetIds.forEach(assetIdStr => {
+        const assetId = parseInt(assetIdStr);
+        if (!isNaN(assetId)) {
+          updateAsset(assetId, {
+            status: 'Ready to Deploy',
+            assignedToId: null,
+            assignedToName: null,
+          });
+        }
+      });
+    }
     if (event.assetIds.length > 0) {
       setAssets(prev => prev.map(asset => {
         if (event.assetIds.includes(String(asset.id))) {

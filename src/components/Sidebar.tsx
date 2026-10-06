@@ -12,17 +12,26 @@ import {
   History, 
   CheckCircle2, 
   AlertTriangle,
-  QrCode 
+  QrCode,
+  UserCircle
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
-  const { activeTab, setActiveTab, assets, licenses, accessories, consumables, users, events, activityLogs } = useApp();
+  const { activeTab, setActiveTab, assets, licenses, accessories, consumables, users, events, activityLogs, currentUser } = useApp();
 
   const lowStockAccessories = accessories.filter(a => a.remainingQuantity <= a.minQuantity).length;
   const lowStockConsumables = consumables.filter(c => c.remainingQuantity <= c.minQuantity).length;
   const totalAlerts = lowStockAccessories + lowStockConsumables;
 
+  const myAssignedAssets = assets.filter(a => a.assignedToId === currentUser?.id).length;
+
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode; count: number; alert?: boolean }[] = [
+    {
+      id: 'my-portal',
+      label: 'My Portal',
+      icon: <UserCircle className="w-4 h-4" />,
+      count: myAssignedAssets,
+    },
     {
       id: 'dashboard',
       label: 'Dashboard',
@@ -88,7 +97,15 @@ export const Sidebar: React.FC = () => {
           Management
         </div>
         <nav className="space-y-1">
-          {navItems.map((item) => {
+          {navItems.filter(item => {
+            if (currentUser?.role === 'Tech') {
+              return ['my-portal'].includes(item.id);
+            }
+            if (currentUser?.role === 'Inventory Manager') {
+              return !['users', 'activity', 'my-portal'].includes(item.id);
+            }
+            return item.id !== 'my-portal'; // Admins/Superadmins don't necessarily need the employee portal view, or maybe they do? Let's hide it for them to keep the sidebar clean, unless requested.
+          }).map((item) => {
             const isActive = activeTab === item.id;
             return (
               <button
