@@ -96,7 +96,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [assets, setAssets] = useState<Asset[]>([]);
   
   useEffect(() => {
-    fetch('http://localhost:3003/api/assets')
+    fetch('/api/assets')
       .then(res => res.json())
       .then(data => setAssets(data))
       .catch(err => console.error('Failed to fetch assets:', err));
@@ -108,14 +108,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [events, setEvents] = useState<EventItem[]>(() => getStoredOrDefault('events', []));
 
   useEffect(() => {
-    fetch('http://localhost:3003/api/events')
+    fetch('/api/events')
       .then(res => res.json())
       .then(data => setEvents(data))
       .catch(err => console.error('Failed to fetch events:', err));
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:3003/api/users')
+    fetch('/api/users')
       .then(res => res.json())
       .then(data => setUsers(data))
       .catch(err => console.error('Failed to fetch users:', err));
@@ -188,7 +188,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await fetch('http://localhost:3003/api/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -253,7 +253,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const addAsset = async (data: Omit<Asset, 'id' | 'updatedAt'>) => {
     try {
-      const response = await fetch('http://localhost:3003/api/assets', {
+      const response = await fetch('/api/assets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -270,7 +270,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateAsset = async (id: number, updates: Partial<Asset>) => {
     try {
-      const response = await fetch(`http://localhost:3003/api/assets/${id}`, {
+      const response = await fetch(`/api/assets/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
@@ -289,7 +289,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const target = assets.find(a => a.id === id);
       if (!target) return;
-      const response = await fetch(`http://localhost:3003/api/assets/${id}`, {
+      const response = await fetch(`/api/assets/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -460,7 +460,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     // Save to backend
-    fetch('http://localhost:3003/api/events', {
+    fetch('/api/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newEvent),
